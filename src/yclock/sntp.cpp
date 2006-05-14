@@ -6,6 +6,7 @@
 #include "config.h"
 #include "debug.h"
 #include "resource.h"
+#include "ntp.h"
 #include "sntp.h"
 
 extern HINSTANCE g_hInst;
