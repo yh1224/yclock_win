@@ -144,18 +144,6 @@ tsdiv2(struct timestamp a)
 	return r;
 }
 
-/* ‘å¬”äŠr  a > b ‚Ì‚Æ‚« TRUE */
-static inline BOOL
-tslt(struct timestamp a, struct timestamp b)
-{
-	if (ntohl(a.integer) > ntohl(b.integer)) {
-		return TRUE;
-	}else if (ntohl(a.fraction) > ntohl(b.fraction)) {
-		return TRUE;
-	}
-	return FALSE;
-}
-
 
 
 /*
