@@ -11,9 +11,9 @@ struct timestamp {
 
 /* NTP packet */
 struct pkt {
-	u_char			li_vn_mode;
-	u_char			stratum;
-	u_char			ppoll;
+	unsigned char		li_vn_mode;
+	unsigned char		stratum;
+	unsigned char		ppoll;
 	char			precision;
 	unsigned long		rootdelay;
 	unsigned long		rootdispersion;
