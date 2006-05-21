@@ -243,7 +243,7 @@ BEGIN
     IDS_NTP_NOTREADY        "サーバの準備ができていません。"
     IDS_NTP_RECVPKTINFO     "LI=%d VN=%d Mode=%d Stratum=%d Poll=%d Precision=%d"
     IDS_NTP_RECVTIME        "時刻を取得しました。 (%d/%d/%d %d:%02d:%02d.%03d)"
-    IDS_NTP_DELAY           "往復遅延 %lu.%06lu秒"
+    IDS_NTP_DELAY           "往復遅延 %lu.%03lu秒"
 END
 
 #endif    // 日本語 resources
