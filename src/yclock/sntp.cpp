@@ -7,13 +7,14 @@
 #include "debug.h"
 #include "resource.h"
 #include "ntp.h"
+#include "ntp_timestamp.h"
 #include "sntp.h"
 
 extern HINSTANCE g_hInst;
 extern struct conf g_Conf;
 
 /* 前回時刻同期日時 */
-static struct timestamp s_tsPrevSync;
+static Timestamp s_tsPrevSync;
 
 /* Window Message */
 #define WM_SYNC_INIT	WM_USER + 1		/* 初期化           */
@@ -23,128 +24,6 @@ static struct timestamp s_tsPrevSync;
 
 /* Timer ID */
 #define ID_TIMER_SYNC		1
-
-/*
-めも
-	F = 2^32
-	x = NTPタイムスタンプの分数部分
-	n = ミリ秒
-	とすると
-
-	x / F = n / 1000
-	x = nF / 1000
-	∴ n = 1000x / F
-*/
-
-/*
-======================================================================
-NTPタイムスタンプ操作用
-----------------------------------------------------------------------
-*/
-
-/* NTPタイムスタンプ → SYSTEMTIME */
-static inline SYSTEMTIME*
-ts2st(struct timestamp ts, SYSTEMTIME *st)
-{
-	time_t t;
-	struct tm *tm;
-
-	if (ntohl(ts.integer) < 0x80000000) {
-		/* FSB == 0: 2036-02-07 06:28:16 UTC ～ ノーサポート */
-		return NULL;
-	}else if (ntohl(ts.integer) >= 0x83aa7e80) {
-		/* FSB == 1: 1900-01-01 00:00:00 UTC ～ */
-		t = ntohl(ts.integer) - 0x83aa7e80;
-		if (NULL != (tm = gmtime(&t))) {
-			st->wYear = tm->tm_year + 1900;
-			st->wMonth = tm->tm_mon + 1;
-			st->wDay = tm->tm_mday;
-			st->wHour = tm->tm_hour;
-			st->wMinute = tm->tm_min;
-			st->wSecond = tm->tm_sec;
-			st->wMilliseconds = (WORD)((double)(ntohl(ts.fraction)) / 4294967296. * 1000.);
-			return st;
-		}
-	}
-	return NULL;
-}
-
-/* 現在時刻を NTPタイムスタンプで取得 */
-static inline struct timestamp
-getnowts()
-{
-	time_t t;
-	struct timestamp ts;
-	SYSTEMTIME st;
-
-	time(&t);
-	GetSystemTime(&st);
-
-	ts.integer = htonl(t + 0x83aa7e80);
-	ts.fraction = htonl((u_long)((double)st.wMilliseconds * 4294967296. / 1000.));
-	return ts;
-}
-
-/* NTPタイムスタンプの差分 (ミリ秒) */
-static inline struct timestamp
-tssub(struct timestamp a, struct timestamp b)
-{
-	struct timestamp r;
-
-	if (ntohl(a.integer) < ntohl(b.integer) ||
-			(ntohl(a.integer) == ntohl(b.integer) && ntohl(a.fraction) < ntohl(b.fraction))) {
-		struct timestamp t;
-		t = a;
-		a = b;	/* swap */
-		b = t;
-	}
-
-	r.integer = htonl(ntohl(a.integer) - ntohl(b.integer));
-	r.fraction = htonl(ntohl(a.fraction) - ntohl(b.fraction));
-	if (ntohl(a.fraction) < ntohl(b.fraction)) {
-		r.integer = htonl(ntohl(r.integer) - 1);
-	}
-
-	SYSLOG((LOG_DEBUG, "tssub(): %08lx.%08lx - %08lx.%08lx = %08lx.%08lx",
-		ntohl(a.integer), ntohl(a.fraction), ntohl(b.integer), ntohl(b.fraction),
-		ntohl(r.integer), ntohl(r.fraction)));
-	return r;
-}
-
-static inline struct timestamp
-tsadd(struct timestamp a, struct timestamp b)
-{
-	struct timestamp r;
-
-	r.integer = htonl(ntohl(a.integer) + ntohl(b.integer));
-	r.fraction = htonl(ntohl(a.fraction) + ntohl(b.fraction));
-	if (ntohl(r.fraction) < ntohl(a.fraction) && ntohl(r.fraction) < ntohl(b.fraction)) {
-		r.integer = htonl(ntohl(r.integer) + 1);
-	}
-
-	SYSLOG((LOG_DEBUG, "tsadd(): %08lx.%08lx + %08lx.%08lx = %08lx.%08lx",
-		ntohl(a.integer), ntohl(a.fraction), ntohl(b.integer), ntohl(b.fraction),
-		ntohl(r.integer), ntohl(r.fraction)));
-	return r;
-}
-
-static inline struct timestamp
-tsdiv2(struct timestamp a)
-{
-	struct timestamp r;
-
-	r.fraction = htonl(ntohl(a.fraction) / 2);
-	r.integer = htonl(ntohl(a.integer) / 2);
-	if (ntohl(a.integer) % 2 == 1) {	/* 切り捨てられたぶんを足す */
-		r.fraction = htonl(ntohl(r.fraction) + 2147483648);
-	}
-
-	SYSLOG((LOG_DEBUG, "tsdiv2(): %08lx.%08lx / 2 = %08lx.%08lx",
-		ntohl(a.integer), ntohl(a.fraction), ntohl(r.integer), ntohl(r.fraction)));
-	return r;
-}
-
-
 
 /*
 ======================================================================
@@ -175,60 +54,90 @@ logSync(UINT uID, ...)
 static BOOL
 syncTime(struct pkt *pkt, struct sync_param *syncParam)
 {
-	struct timestamp ts_delay;	/* 往復遅延時間 */
-	struct timestamp ts_now;	/* 取得した時刻 */
-	struct timestamp ts_set;	/* 設定する時刻 */
-	SYSTEMTIME st_now;
+	Timestamp* ts_org;	/* T1: Originated Timestamp */
+	Timestamp* ts_rec;	/* T2: Received Timestamp */
+	Timestamp* ts_xmt;	/* T3: Transmit Timestamp */
+	Timestamp* ts_delay;	/* 往復遅延時間 */
+	Timestamp* ts_got;	/* 取得した時刻 */
+	Timestamp* ts_shift;	/* シフトする時間 */
+	Timestamp* ts_set;	/* 設定する時刻 */
+	Timestamp* ts1;
+	Timestamp* ts2;
+	SYSTEMTIME st_set;
 	BOOL rtn = TRUE;
 
 	logSync(IDS_NTP_RECVPKTINFO,
 		(pkt->li_vn_mode >> 6) & 0x03,	/* Location Information */
 		(pkt->li_vn_mode >> 3) & 0x07,	/* Version Number */
 		pkt->li_vn_mode & 0x07,		/* Mode */
-		pkt->stratum,
-		pkt->ppoll,
-		pkt->precision);
+		pkt->stratum,			/* Stratum */
+		pkt->ppoll,			/* Peer Poll */
+		pkt->precision);		/* Peer Precision */
 
 	if ((pkt->li_vn_mode & 0xc0) == 0xc0) {
 		logSync(IDS_NTP_NOTREADY);
 		return FALSE;
 	}
 
-	/* 往復遅延 d = (T4 - T1) - (T2 - T3) */
-	ts_delay = tssub(tssub(getnowts(), pkt->org), tssub(pkt->xmt, pkt->rec));
-	logSync(IDS_NTP_DELAY, ntohl(ts_delay.integer), (int)(((double)ntohl(ts_delay.fraction) / 4294967296.) * 1000000));
-	if (ts_delay.integer > 0 || (int)(((double)ntohl(ts_delay.fraction) / 4294967296.) * 10000) > syncParam->nMaxDelay * 10) {
+	ts_org = new Timestamp((char *)&pkt->org);
+	ts_rec = new Timestamp((char *)&pkt->rec);
+	ts_xmt = new Timestamp((char *)&pkt->xmt);
+
+	SYSLOG((LOG_DEBUG, "T1: org = %lu.%06lu", ts_org->getSec(), ts_org->getUSec()));
+	SYSLOG((LOG_DEBUG, "T2: rec = %lu.%06lu", ts_rec->getSec(), ts_rec->getUSec()));
+	SYSLOG((LOG_DEBUG, "T3: xmt = %lu.%06lu", ts_xmt->getSec(), ts_xmt->getUSec()));
+
+	/* 往復遅延 delay = (T4 - T1) - (T2 - T3) */
+	ts1 = new Timestamp();	/* T4 */
+	SYSLOG((LOG_DEBUG, "T4      = %lu.%06lu", ts1->getSec(), ts1->getUSec()));
+	ts1->sub(ts_org);
+	SYSLOG((LOG_DEBUG, "T4 - T1 = %lu.%06lu", ts1->getSec(), ts1->getUSec()));
+	ts2 = new Timestamp(ts_xmt);
+	ts2->sub(ts_rec);
+	SYSLOG((LOG_DEBUG, "T2 - T3 = %lu.%06lu", ts2->getSec(), ts2->getUSec()));
+	ts1->sub(ts2);
+	delete ts2;
+	ts_delay = ts1;
+
+	SYSLOG((LOG_DEBUG, "Roundtrip Delay = %lu.%06lu", ts_delay->getSec(), ts_delay->getUSec()));
+	logSync(IDS_NTP_DELAY, ts_delay->getSec(), ts_delay->getUSec() / 1000);
+	if (ts_delay->getSec() > 0 || ts_delay->getUSec() > (unsigned long)syncParam->nMaxDelay * 1000) {
 		/* 許容遅延時間超過 */
 		return FALSE;
 	}
+
 	/* 現在時刻 = T3 + d / 2 */
-	ts_now = tsadd(pkt->xmt, tsdiv2(ts_delay));
+	ts_got = new Timestamp(ts_xmt);
+	ts_delay->half();
+	ts_got->add(ts_delay);
+	SYSLOG((LOG_DEBUG, "Result Timestamp = %lu.%06lu", ts_got->getSec(), ts_got->getUSec()));
 
 	/* 故意に時間をずらす */
-	ts_set.integer = htonl(ntohl(ts_now.integer) + syncParam->nTimeShift);
-	ts_set.fraction = ts_now.fraction;
+	ts_shift = new Timestamp(syncParam->nTimeShift, 0);
+	ts_set = new Timestamp(ts_got);
+	ts_set->sub(ts_shift);
 
 	/* NTPタイムスタンプから SYSTEMTIME に変換 */
-	if (NULL == ts2st(ts_set, &st_now)) {
+	if (NULL == ts_set->getSystemTime(&st_set)) {
 		/* 変換不能。たぶん変なデータ */
 		SYSLOG((LOG_ERR, "syncTime(): Couldn't convert timestamp."));
 		logSync(IDS_NTP_SYNC_NG);
 		rtn = FALSE;
 	}else{
 		SYSLOG((LOG_DEBUG, "syncTime(): Result Time = %4d-%02d-%02d %d:%02d:%02d.%03d",
-			st_now.wYear, st_now.wMonth, st_now.wDay,
-			st_now.wHour, st_now.wMinute, st_now.wSecond, st_now.wMilliseconds));
-		logSync(IDS_NTP_RECVTIME, st_now.wYear, st_now.wMonth, st_now.wDay,
-			st_now.wHour, st_now.wMinute, st_now.wSecond, st_now.wMilliseconds);
+			st_set.wYear, st_set.wMonth, st_set.wDay,
+			st_set.wHour, st_set.wMinute, st_set.wSecond, st_set.wMilliseconds));
+		logSync(IDS_NTP_RECVTIME, st_set.wYear, st_set.wMonth, st_set.wDay,
+			st_set.wHour, st_set.wMinute, st_set.wSecond, st_set.wMilliseconds);
 		if (syncParam->bSync != FALSE) {
 			/* 時刻設定 */
-			if (FALSE == SetSystemTime(&st_now)) {
+			if (FALSE == SetSystemTime(&st_set)) {
 				SYSLOG((LOG_ERR, "syncTime(): SetSystemTime() failed."));
 				logSync(IDS_NTP_SYNC_NG);
 				rtn = FALSE;
 			}else{
 				SYSLOG((LOG_DEBUG, "syncTime(): Time syncing success."));
-				s_tsPrevSync = ts_now;
+				s_tsPrevSync = ts_got;
 				logSync(IDS_NTP_SYNC_OK);
 			}
 		}else{
@@ -236,6 +145,14 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 			SYSLOG((LOG_DEBUG, "syncTime(): Sync test success."));
 		}
 	}
+
+	delete ts_delay;
+	delete ts_shift;
+	delete ts_org;
+	delete ts_xmt;
+	delete ts_rec;
+	delete ts_got;
+
 	return rtn;
 }
 
@@ -275,12 +192,13 @@ sendNtpPacket(ADDRINFO *addr)
 	struct pkt pkt;
 	BOOL rtn = TRUE;
 	int i;
+	Timestamp now;
 
 	/* リクエストパケットの設定 */
 	memset(&pkt, 0, sizeof(struct pkt));
 	pkt.li_vn_mode = 0x1B;		/* VN=3, Mode=3(Client) */
 	//pkt.li_vn_mode = 0x23;	/* VN=4, Mode=3(Client) */
-	pkt.xmt = getnowts();		/* 現在時刻 T1 */
+	now.getPacketData((char *)&pkt.xmt);	/* 現在時刻 T1 */
 
 	for (i = 0; i < SYNC_MAX_RETRY; i++) {
 		if (SOCKET_ERROR != sendto(s_sockSync, (char*)&pkt, sizeof(struct pkt), 0, (SOCKADDR *)addr->ai_addr, addr->ai_addrlen)) {
@@ -578,8 +496,8 @@ getLastSync()
 	static char szPrevSync[18];
 	SYSTEMTIME st;
 
-	if (s_tsPrevSync.integer != 0 && s_tsPrevSync.fraction != 0) {
-		if (NULL != ts2st(s_tsPrevSync, &st)) {
+	if (s_tsPrevSync.getSec() != 0) {
+		if (NULL != s_tsPrevSync.getSystemTime(&st)) {
 			wsprintf(szPrevSync, "%4d-%02d-%02d %2d:%02d:%02d",
 				st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 			return szPrevSync;
