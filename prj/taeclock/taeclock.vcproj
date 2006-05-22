@@ -156,7 +156,10 @@
 				RelativePath="..\..\src\yclock\misc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\yclock\ntp.cpp">
+				RelativePath="..\..\src\yclock\ntp_timestamp.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\yclock\sntp.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\voice.cpp">
@@ -181,10 +184,13 @@
 				RelativePath="..\..\src\yclock\misc.h">
 			</File>
 			<File
-				RelativePath="..\..\src\yclock\ntp.h">
+				RelativePath="..\..\src\yclock\ntp_timestamp.h">
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\ident\taeclock\resource.h">
+			</File>
+			<File
+				RelativePath="..\..\src\yclock\sntp.h">
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\voice.h">
