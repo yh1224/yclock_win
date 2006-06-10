@@ -7,7 +7,7 @@
 #include "voice.h"
 #include "sntp.h"
 #include "misc.h"
-#include "config.h"
+#include "conf.h"
 
 /* ƒOƒ[ƒoƒ‹İ’è */
 struct conf g_Conf;

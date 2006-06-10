@@ -144,7 +144,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\src\yclock\config.cpp">
+				RelativePath="..\..\src\yclock\conf.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\debug.cpp">
@@ -172,7 +172,7 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\src\yclock\config.h">
+				RelativePath="..\..\src\yclock\conf.h">
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\debug.h">

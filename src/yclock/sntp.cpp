@@ -3,7 +3,7 @@
 #include <wininet.h>
 #include <time.h>
 #include "WSAASyncGetAddrInfo.h"
-#include "config.h"
+#include "conf.h"
 #include "debug.h"
 #include "resource.h"
 #include "ntp.h"

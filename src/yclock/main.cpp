@@ -8,7 +8,7 @@
 #include "sntp.h"
 #include "debug.h"
 #include "voice.h"
-#include "config.h"
+#include "conf.h"
 #include "misc.h"
 
 /* タスクトレイ再構築メッセージ (Win98以降もしくはIE4 Desktopがインストールされている場合 */
