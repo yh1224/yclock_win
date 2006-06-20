@@ -238,7 +238,7 @@ BEGIN
     IDS_NTP_CHECK_OK        "テストは正常に完了しました。"
     IDS_NTP_SYNC_OK         "時刻合わせに成功しました。"
     IDS_NTP_SYNC_NG         "時刻合わせに失敗しました。"
-    IDS_NTP_TIMEOUT         "応答がありませんでした。"
+    IDS_NTP_TIMEOUT         "有効な応答がありませんでした。"
     IDS_NTP_RESOLVING       "サーバを検索しています… (%s)"
     IDS_NTP_NOTREADY        "サーバの準備ができていません。"
     IDS_NTP_RECVPKTINFO     "LI=%d VN=%d Mode=%d Stratum=%d Poll=%d Precision=%d"
