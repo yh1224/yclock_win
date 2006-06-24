@@ -14,7 +14,7 @@ extern HINSTANCE g_hInst;
 extern struct conf g_Conf;
 
 /* ‘O‰ñ“¯Šú“ú */
-static Timestamp s_tsPrevSync;
+static Timestamp s_tsPrevSync(0, 0);
 
 /* Window Message */
 #define WM_SYNC_INIT	WM_USER + 1		/* ‰Šú‰»           */
