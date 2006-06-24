@@ -59,6 +59,7 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 	Timestamp* ts_xmt;	/* T3: Transmit Timestamp */
 	Timestamp* ts_delay;	/* 往復遅延時間 */
 	Timestamp* ts_got;	/* 取得した時刻 */
+	Timestamp* ts_error;	/* 現在時刻と取得した時刻との誤差 */
 	Timestamp* ts_shift;	/* シフトする時間 */
 	Timestamp* ts_set;	/* 設定する時刻 */
 	Timestamp* ts1;
@@ -87,18 +88,21 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 	SYSLOG((LOG_DEBUG, "T2: rec = %lu.%06lu", ts_rec->getSec(), ts_rec->getUSec()));
 	SYSLOG((LOG_DEBUG, "T3: xmt = %lu.%06lu", ts_xmt->getSec(), ts_xmt->getUSec()));
 
-	/* 往復遅延 delay = (T4 - T1) - (T2 - T3) */
+	/* 往復遅延 delay = (T4 - T1) - (T3 - T2) */
 	ts1 = new Timestamp();	/* T4 */
 	SYSLOG((LOG_DEBUG, "T4      = %lu.%06lu", ts1->getSec(), ts1->getUSec()));
 	ts1->sub(ts_org);
 	SYSLOG((LOG_DEBUG, "T4 - T1 = %lu.%06lu", ts1->getSec(), ts1->getUSec()));
 	ts2 = new Timestamp(ts_xmt);
 	ts2->sub(ts_rec);
-	SYSLOG((LOG_DEBUG, "T2 - T3 = %lu.%06lu", ts2->getSec(), ts2->getUSec()));
+	SYSLOG((LOG_DEBUG, "T3 - T2 = %lu.%06lu", ts2->getSec(), ts2->getUSec()));
 	ts1->sub(ts2);
 	delete ts2;
 	ts_delay = ts1;
 
+	if (ts_delay->getOverflow() < 0) {
+		ts_delay->set(0, 0);
+	}
 	SYSLOG((LOG_DEBUG, "Roundtrip Delay = %lu.%06lu", ts_delay->getSec(), ts_delay->getUSec()));
 	logSync(IDS_NTP_DELAY, ts_delay->getSec(), ts_delay->getUSec() / 1000);
 	if (ts_delay->getSec() > 0 || ts_delay->getUSec() > (unsigned long)syncParam->nMaxDelay * 1000) {
@@ -116,6 +120,16 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 	ts_shift = new Timestamp(syncParam->nTimeShift, 0);
 	ts_set = new Timestamp(ts_got);
 	ts_set->sub(ts_shift);
+
+	/* 誤差 */
+	ts_error = new Timestamp();
+	ts_error->sub(ts_got);
+	ts_error->abs();
+	logSync(IDS_NTP_ERROR, ts_error->getSec(), ts_error->getUSec() / 1000);
+	if (ts_error->getSec() == 0 && ts_error->getUSec() < (unsigned long)syncParam->nTolerance * 100) {
+		/* 許容誤差範囲内なので実際には設定しない */
+		syncParam->bSync = FALSE;
+	}
 
 	/* NTPタイムスタンプから SYSTEMTIME に変換 */
 	if (NULL == ts_set->getSystemTime(&st_set)) {
@@ -152,6 +166,7 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 	delete ts_xmt;
 	delete ts_rec;
 	delete ts_got;
+	delete ts_error;
 
 	return rtn;
 }

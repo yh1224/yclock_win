@@ -31,6 +31,7 @@
 #define IDC_NTP_SHIFT                   1053
 #define IDC_NTP_SHIFT_SEC               1054
 #define IDC_NTP_MAXDELAY                1055
+#define IDC_NTP_TOLERANCE               1056
 #define ID_SYNC_DETAILMSG               1057
 #define IDC_CONFIG_VOL_LOW              1058
 #define IDC_CONFIG_VOL_MID              1059
@@ -51,6 +52,7 @@
 #define IDS_NTP_RECVPKTINFO             12314
 #define IDS_NTP_RECVTIME                12315
 #define IDS_NTP_DELAY                   12316
+#define IDS_NTP_ERROR                   12317
 #define ID_MENU_EXIT                    40001
 #define ID_MENU_CONFIG                  40002
 #define ID_MENU_ABOUT                   40004

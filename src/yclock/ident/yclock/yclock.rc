@@ -127,26 +127,28 @@ BEGIN
     RTEXT           "",IDC_ABOUT_PREVSYNC,71,57,147,8
 END
 
-IDD_SNTP DIALOGEX 0, 0, 237, 111
+IDD_SNTP DIALOGEX 0, 0, 238, 123
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "XS"
 FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x0
+
 BEGIN
     LTEXT           "NTPサーバのホスト名もしくはIPアドレス(&H):",IDC_STATIC,
                     7,9,126,8
     EDITTEXT        IDC_NTP_SERVER,7,19,136,14,ES_AUTOHSCROLL
-    GROUPBOX        "オプション",IDC_STATIC,7,41,162,55
-    EDITTEXT        IDC_NTP_MAXDELAY,13,55,21,14,ES_AUTOHSCROLL
-    LTEXT           "ミリ秒以内に応答がなければ無視する。",IDC_STATIC,37,58,
+    GROUPBOX        "オプション",IDC_STATIC,7,39,162,69
+    EDITTEXT        IDC_NTP_MAXDELAY,14,53,21,14,ES_AUTOHSCROLL
+    LTEXT           "ミリ秒以内に応答がなければ無視する。",IDC_STATIC,38,56,
                     115,8
+    EDITTEXT        IDC_NTP_TOLERANCE,14,70,21,14,ES_AUTOHSCROLL
+    LTEXT           "ミリ秒未満の誤差は修正しない。",IDC_STATIC,38,73,95,8
     CONTROL         "故意に時刻をずらす(&S):",IDC_NTP_SHIFT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,76,83,10
-    EDITTEXT        IDC_NTP_SHIFT_SEC,97,74,21,14,ES_AUTOHSCROLL
-    LTEXT           "秒",IDC_STATIC,122,77,8,8
-    DEFPUSHBUTTON   "OK",IDOK,177,7,50,14
-    PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,177,24,50,14
-    PUSHBUTTON      "テスト(&T)",IDC_NTP_TEST,177,45,50,14
-    PUSHBUTTON      "初期設定(&R)",IDC_NTP_DEFAULT,177,65,50,14
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,90,83,10
+    EDITTEXT        IDC_NTP_SHIFT_SEC,98,88,21,14,ES_AUTOHSCROLL
+    LTEXT           "秒",IDC_STATIC,123,91,15,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14
+    PUSHBUTTON      "ｷｬﾝｾﾙ",IDCANCEL,178,24,50,14
+    PUSHBUTTON      "テスト(&T)",IDC_NTP_TEST,178,45,50,14
+    PUSHBUTTON      "初期設定(&R)",IDC_NTP_DEFAULT,178,65,50,14
 END
 
 IDD_SYNC DIALOGEX 0, 0, 199, 87
@@ -187,9 +189,9 @@ BEGIN
     IDD_SNTP, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 227
+        RIGHTMARGIN, 228
         TOPMARGIN, 7
-        BOTTOMMARGIN, 96
+        BOTTOMMARGIN, 108
     END
 
     IDD_SYNC, DIALOG
@@ -244,6 +246,7 @@ BEGIN
     IDS_NTP_RECVPKTINFO     "LI=%d VN=%d Mode=%d Stratum=%d Poll=%d Precision=%d"
     IDS_NTP_RECVTIME        "時刻を取得しました。 (%d/%d/%d %d:%02d:%02d.%03d)"
     IDS_NTP_DELAY           "往復遅延 %lu.%03lu秒"
+    IDS_NTP_ERROR           "時刻誤差 %lu.%03lu秒"
 END
 
 #endif    // 日本語 resources

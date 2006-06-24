@@ -28,6 +28,9 @@ static const int nDefaultVoiceVolume = nVoiceVolume_High;
 static const int nDefaultMaxDelay = 500;
 static const int nMinMaxDelay = 1;
 static const int nMaxMaxDelay = 1000;
+static const int nDefaultTolerance = 200;
+static const int nMinTolerance = 0;
+static const int nMaxTolerance = 1000;
 static const int nDefaultTimeShift = 0;
 static const int nMaxTimeShift = 3600;
 static const int nMinTimeShift = -3600;
@@ -47,6 +50,7 @@ conf_init() {
 	g_Conf.nVoiceInterval = nDefaultVoiceInterval;
 	g_Conf.nVoiceVolume = nDefaultVoiceVolume;
 	g_Conf.nMaxDelay = nDefaultMaxDelay;
+	g_Conf.nTolerance = nDefaultTolerance;
 	g_Conf.nTimeShift = nDefaultTimeShift;
 #ifdef DISPWND
 	g_Conf.bShow = bDefaultShow;
@@ -71,6 +75,7 @@ conf_save() {
 	RegSetValueEx(hkReg, "PosX", 0, REG_DWORD, (BYTE*)&g_Conf.nPosX, 4);
 	RegSetValueEx(hkReg, "PosY", 0, REG_DWORD, (BYTE*)&g_Conf.nPosY, 4);
 	RegSetValueEx(hkReg, "MaxDelay", 0, REG_DWORD, (BYTE*)&g_Conf.nMaxDelay, 4);
+	RegSetValueEx(hkReg, "Tolerance", 0, REG_DWORD, (BYTE*)&g_Conf.nTolerance, 4);
 	RegSetValueEx(hkReg, "TimeShift", 0, REG_DWORD, (BYTE*)&g_Conf.nTimeShift, 4);
 #ifdef DISPWND
 	RegSetBool(hkReg, "Show", g_Conf.bShow);
@@ -104,6 +109,10 @@ conf_load() {
 		g_Conf.nMaxDelay = (int)RegGetDW(hkReg, "MaxDelay");
 		if (g_Conf.nMaxDelay < nMinMaxDelay || g_Conf.nMaxDelay > nMaxMaxDelay) {
 			g_Conf.nMaxDelay = nDefaultMaxDelay;
+		}
+		g_Conf.nTolerance = (int)RegGetDW(hkReg, "Tolerance");
+		if (g_Conf.nTolerance < nMinTolerance || g_Conf.nTolerance > nMaxTolerance) {
+			g_Conf.nTolerance = nDefaultTolerance;
 		}
 		g_Conf.nTimeShift = (int)RegGetDW(hkReg, "TimeShift");
 		if (g_Conf.nTimeShift < nMinTimeShift || g_Conf.nTimeShift > nMaxTimeShift) {
@@ -182,6 +191,7 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	/* 設定の一時保存用 */
 	char szServer[INTERNET_MAX_HOST_NAME_LENGTH + 1];
 	int nMaxDelay;
+	int nTolerance;
 	int nTimeShift;
 
 	switch (uMsg) {
@@ -192,6 +202,10 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		/* 許容遅延時間 */
 		SetDlgItemInt(hwndDlg, IDC_NTP_MAXDELAY, g_Conf.nMaxDelay, FALSE);
 		SendMessage(GetDlgItem(hwndDlg, IDC_NTP_MAXDELAY), EM_SETLIMITTEXT, 4, 0);
+
+		/* 許容誤差 */
+		SetDlgItemInt(hwndDlg, IDC_NTP_TOLERANCE, g_Conf.nTolerance, FALSE);
+		SendMessage(GetDlgItem(hwndDlg, IDC_NTP_TOLERANCE), EM_SETLIMITTEXT, 4, 0);
 
 		/* 時刻シフト */
 		if (g_Conf.nTimeShift != 0) {
@@ -218,12 +232,22 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
 				break;
 			}
+			nTolerance = GetDlgItemInt(hwndDlg, IDC_NTP_TOLERANCE, &bTrans, FALSE);
+			if (FALSE == bTrans) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_INVALIDDIGIT, MB_OK | MB_ICONSTOP);
+				break;
+			}
+			if (nTolerance < nMinTolerance || nTolerance > nMaxTolerance) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
+				break;
+			}
 
 			/* 時刻同期テスト実行 */
 			memset(&syncParam, 0, sizeof(syncParam));
 			syncParam.bSync = FALSE;
 			syncParam.szServer = szServer;
 			syncParam.nMaxDelay = nMaxDelay;
+			syncParam.nTolerance = nTolerance;
 			syncParam.nTimeShift = 0;
 			syncClock(hwndDlg, &syncParam, TRUE);
 			break;
@@ -232,6 +256,7 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			/* 初期設定に戻す */
 			SetDlgItemText(hwndDlg, IDC_NTP_SERVER, pszDefaultServer);
 			SetDlgItemInt(hwndDlg, IDC_NTP_MAXDELAY, nDefaultMaxDelay, FALSE);
+			SetDlgItemInt(hwndDlg, IDC_NTP_TOLERANCE, nDefaultTolerance, FALSE);
 			CheckDlgButton(hwndDlg, IDC_NTP_SHIFT, BST_UNCHECKED);
 			SetDlgItemInt(hwndDlg, IDC_NTP_SHIFT_SEC, nDefaultTimeShift, TRUE);
 			break;
@@ -247,6 +272,17 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			if (nMaxDelay < nMinMaxDelay || nMaxDelay > nMaxMaxDelay) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
+				break;
+			}
+
+			/* 許容誤差 */
+			nTolerance = GetDlgItemInt(hwndDlg, IDC_NTP_TOLERANCE, &bTrans, FALSE);
+			if (FALSE == bTrans) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_INVALIDDIGIT, MB_OK | MB_ICONSTOP);
+				break;
+			}
+			if (nTolerance < nMinTolerance || nTolerance > nMaxTolerance) {
 				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
 				break;
 			}
@@ -268,6 +304,7 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			strcpy(g_Conf.szServer, szServer);
 			g_Conf.nMaxDelay = nMaxDelay;
+			g_Conf.nTolerance = nTolerance;
 			g_Conf.nTimeShift = nTimeShift;
 
 			/* no break */

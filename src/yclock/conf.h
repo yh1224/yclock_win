@@ -13,6 +13,7 @@ struct conf {
 	int	bAutoRun;		/* 自動起動 */
 
 	int	nMaxDelay;		/* 許容遅延時間(ミリ秒) */
+	int	nTolerance;		/* 許容誤差(ミリ秒) */
 	int	nTimeShift;		/* 時刻シフト時間(秒) */
 #ifdef DISPWND
 	BOOL	bShow;			/* 時計表示 */

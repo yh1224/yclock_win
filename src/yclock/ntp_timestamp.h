@@ -11,6 +11,7 @@ class Timestamp
 private:
 	unsigned long	integer;	/* 整数部 */
 	unsigned long	fraction;	/* 小数部 */
+	int		overflow;	/* オーバーフロー */
 
 public:
 	Timestamp();
@@ -24,12 +25,17 @@ public:
 	unsigned long getSec();
 	unsigned long getFrac();
 	unsigned long getUSec();
+	int getOverflow();
 	void getPacketData(char *);
-	SYSTEMTIME* getSystemTime(SYSTEMTIME*);
+	SYSTEMTIME* getSystemTime(SYSTEMTIME *);
+
+	/* setter */
+	void set(unsigned long, unsigned long);
 
 	/* 演算 */
 	void add(Timestamp*);
 	void sub(Timestamp*);
+	void abs();
 	void half();
 };
 

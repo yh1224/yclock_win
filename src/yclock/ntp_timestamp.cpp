@@ -13,24 +13,21 @@ Timestamp::Timestamp() {
 	time(&t);
 	GetSystemTime(&st);
 
-	integer = t + 0x83aa7e80;
-	fraction = (unsigned long)((double)st.wMilliseconds / 1000. * 4294967296.);
+	set(t + 0x83aa7e80, (unsigned long)((double)st.wMilliseconds / 1000. * 4294967296.));
 }
 
 /*
  * Timestampを複製
  */
 Timestamp::Timestamp(Timestamp* ts) {
-	integer = ts->integer;
-	fraction = ts->fraction;
+	set(ts->integer, ts->fraction);
 }
 
 /*
  * integer,fractionを指定
  */
 Timestamp::Timestamp(unsigned long i, unsigned long f) {
-	integer = i;
-	fraction = f;
+	set(i, f);
 }
 
 /*
@@ -38,8 +35,7 @@ Timestamp::Timestamp(unsigned long i, unsigned long f) {
  */
 Timestamp::Timestamp(char *p) {
 	unsigned long *lp = (unsigned long *)p;
-	integer = ntohl(*lp);
-	fraction = ntohl(*(lp + 1));
+	set(ntohl(*lp), ntohl(*(lp + 1)));
 }
 
 Timestamp::~Timestamp() {
@@ -67,6 +63,14 @@ Timestamp::getFrac() {
 unsigned long
 Timestamp::getUSec() {
 	return (unsigned long)((double)fraction * 1000000. / 4294967296.);
+}
+
+/*
+ * オーバーフロー情報を取得
+ */
+int
+Timestamp::getOverflow() {
+	return overflow;
 }
 
 /*
@@ -109,6 +113,16 @@ Timestamp::getSystemTime(SYSTEMTIME* st) {
 }
 
 /*
+ * Timestampを設定
+ */
+void
+Timestamp::set(unsigned long i, unsigned long f) {
+	integer = i;
+	fraction = f;
+	overflow = 0;
+}
+
+/*
  * 足し算
  */
 void
@@ -120,8 +134,7 @@ Timestamp::add(Timestamp* t) {
 	}
 	if (integer < t->integer) {
 		/* overflow */
-		integer = 0xffffffff;
-		fraction = 0xffffffff;
+		overflow++;
 	}
 	return;
 }
@@ -141,8 +154,23 @@ Timestamp::sub(Timestamp* t) {
 	fraction -= t->fraction;
 	if (integer > orig_integer) {
 		/* underflow */
-		integer = 0;
-		fraction = 0;
+		overflow--;
+	}
+	return;
+}
+
+/*
+ * 絶対値
+ */
+void
+Timestamp::abs() {
+	if (overflow == -1) {
+		integer = ~integer;
+		fraction = ~fraction + 1;
+		if (fraction == 0) {
+			integer++;
+		}
+		overflow = 0;
 	}
 	return;
 }

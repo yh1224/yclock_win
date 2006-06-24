@@ -9,6 +9,7 @@ struct sync_param {
 	BOOL	bSync;		/* 実際に時刻を設定するかどうか */
 	char	*szServer;	/* サーバホスト名 */
 	int	nMaxDelay;	/* 許容遅延時間(ミリ秒) */
+	int	nTolerance;	/* 許容誤差(ミリ秒) */
 	int	nTimeShift;	/* 時刻シフト(秒) */
 };
 
