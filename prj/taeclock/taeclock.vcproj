@@ -200,10 +200,10 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
-				RelativePath="..\..\src\yclock\ident\taeclock\taeclock.rc">
+				RelativePath="..\..\src\yclock\ident\taeclock\icon1.ico">
 			</File>
 			<File
-				RelativePath="..\..\src\yclock\ident\taeclock\taeicon1.ico">
+				RelativePath="..\..\src\yclock\ident\taeclock\taeclock.rc">
 			</File>
 		</Filter>
 	</Files>

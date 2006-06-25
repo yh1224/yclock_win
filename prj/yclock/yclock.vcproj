@@ -200,6 +200,12 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
+				RelativePath="..\..\src\yclock\ident\yclock\icon1.ico">
+			</File>
+			<File
+				RelativePath="..\..\src\yclock\ident\yclock\icon2.ico">
+			</File>
+			<File
 				RelativePath="..\..\src\yclock\ident\yclock\illust.bmp">
 			</File>
 			<File
@@ -207,9 +213,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\yclock\ident\yclock\yclock.rc">
-			</File>
-			<File
-				RelativePath="..\..\src\yclock\ident\yclock\yicon1.ico">
 			</File>
 		</Filter>
 	</Files>
