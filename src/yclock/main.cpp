@@ -354,6 +354,7 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							syncParam.bSync = TRUE;
 							syncParam.szServer = g_Conf.szServer;
 							syncParam.nMaxDelay = g_Conf.nMaxDelay;
+							syncParam.nTolerance = g_Conf.nTolerance;
 							syncParam.nTimeShift = g_Conf.nTimeShift;
 							syncClock(hWnd, &syncParam, FALSE);
 							nTimer = 0;
@@ -462,6 +463,7 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			syncParam.bSync = TRUE;
 			syncParam.szServer = g_Conf.szServer;
 			syncParam.nMaxDelay = g_Conf.nMaxDelay;
+			syncParam.nTolerance = g_Conf.nTolerance;
 			syncParam.nTimeShift = g_Conf.nTimeShift;
 			syncClock(hWnd, &syncParam, TRUE);
 			break;
