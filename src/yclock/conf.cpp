@@ -91,30 +91,33 @@ BOOL
 conf_load() {
 	HKEY hkReg;
 
+	// Load default value
+	conf_init();
+
 	if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER, IDENT_REGISTRYKEY, 0, KEY_ALL_ACCESS, &hkReg)) {
 		DWORD siz, typ;
 
 		siz = INTERNET_MAX_HOST_NAME_LENGTH;
 		RegQueryValueEx(hkReg, "Server", 0, NULL, (BYTE*)&g_Conf.szServer, (LPDWORD)&siz);
 
-		g_Conf.nSyncInterval = (int)RegGetDW(hkReg, "SyncInterval");
-		g_Conf.nVoiceInterval = (int)RegGetDW(hkReg, "VoiceInterval");
-		g_Conf.nVoiceVolume = (int)RegGetDW(hkReg, "VoiceVolume");
+		RegGetDW(hkReg, "SyncInterval", (DWORD *)&g_Conf.nSyncInterval);
+		RegGetDW(hkReg, "VoiceInterval", (DWORD *)&g_Conf.nVoiceInterval);
+		RegGetDW(hkReg, "VoiceVolume", (DWORD *)&g_Conf.nVoiceVolume);
 		if (g_Conf.nVoiceVolume <= 0 || g_Conf.nVoiceVolume > 100) {
 			g_Conf.nVoiceVolume = nDefaultVoiceVolume;
 		}
-		g_Conf.nPosX = (int)RegGetDW(hkReg, "PosX");
-		g_Conf.nPosY = (int)RegGetDW(hkReg, "PosY");
+		RegGetDW(hkReg, "PosX", (DWORD *)&g_Conf.nPosX);
+		RegGetDW(hkReg, "PosY", (DWORD *)&g_Conf.nPosY);
 		g_Conf.bSync = RegGetBool(hkReg, "Sync");
-		g_Conf.nMaxDelay = (int)RegGetDW(hkReg, "MaxDelay");
+		RegGetDW(hkReg, "MaxDelay", (DWORD *)&g_Conf.nMaxDelay);
 		if (g_Conf.nMaxDelay < nMinMaxDelay || g_Conf.nMaxDelay > nMaxMaxDelay) {
 			g_Conf.nMaxDelay = nDefaultMaxDelay;
 		}
-		g_Conf.nTolerance = (int)RegGetDW(hkReg, "Tolerance");
+		RegGetDW(hkReg, "Tolerance", (DWORD *)&g_Conf.nTolerance);
 		if (g_Conf.nTolerance < nMinTolerance || g_Conf.nTolerance > nMaxTolerance) {
 			g_Conf.nTolerance = nDefaultTolerance;
 		}
-		g_Conf.nTimeShift = (int)RegGetDW(hkReg, "TimeShift");
+		RegGetDW(hkReg, "TimeShift", (DWORD *)&g_Conf.nTimeShift);
 		if (g_Conf.nTimeShift < nMinTimeShift || g_Conf.nTimeShift > nMaxTimeShift) {
 			g_Conf.nTimeShift = nDefaultTimeShift;
 		}
@@ -124,8 +127,6 @@ conf_load() {
 #endif
 		RegQueryValueEx(hkReg, "Away", 0, &typ, NULL, (LPDWORD)&siz);
 		RegCloseKey(hkReg);
-	}else{
-		conf_init();
 	}
 
 	return TRUE;

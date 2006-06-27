@@ -5,7 +5,7 @@ BOOL isNum(char *, BOOL);
 
 BOOL RegGetBool(HKEY, char *);
 LONG RegSetBool(HKEY, char *, BOOL);
-DWORD RegGetDW(HKEY, char *);
+BOOL RegGetDW(HKEY, char *, DWORD *);
 
 BOOL isPlatformWin32NT();
 BOOL getClockPrivilege();

@@ -35,15 +35,17 @@ RegSetBool(HKEY hkReg, char *szKey, BOOL bVal)
 	}
 }
 
-DWORD
-RegGetDW(HKEY hkReg, char *szKey)
+BOOL
+RegGetDW(HKEY hkReg, char *szKey, DWORD *dwVal)
 {
-	DWORD val, siz = 4;
+	DWORD val;
+	DWORD siz = sizeof(DWORD);
 
 	if (ERROR_SUCCESS == RegQueryValueEx(hkReg, szKey, 0, NULL, (BYTE*)&val, (LPDWORD)&siz)) {
-		return val;
+		*dwVal = val;
+		return TRUE;
 	}else{
-		return 0;
+		return FALSE;
 	}
 }
 
