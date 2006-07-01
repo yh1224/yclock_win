@@ -65,7 +65,7 @@ AboutDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetDlgItemText(hwndDlg, IDC_ABOUT_TITLE, IDENT_APLTITLE);
 		SetDlgItemText(hwndDlg, IDC_ABOUT_VERSION, IDENT_APLVERSION);
 		if (NULL != getLastSync()) {
-			wsprintf(szMsg, "%s GMT Ç…éûçèìØä˙ÇµÇ‹ÇµÇΩÅB", getLastSync());
+			wsprintf(szMsg, "%s Ç…éûçèìØä˙ÇµÇ‹ÇµÇΩÅB", getLastSync());
 			SetDlgItemText(hwndDlg, IDC_ABOUT_PREVSYNC, szMsg);
 		}
 		return 1;

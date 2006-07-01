@@ -28,6 +28,7 @@ public:
 	int getOverflow();
 	void getPacketData(char *);
 	SYSTEMTIME* getSystemTime(SYSTEMTIME *);
+	struct tm *getLocalTime();
 
 	/* setter */
 	void set(unsigned long, unsigned long);

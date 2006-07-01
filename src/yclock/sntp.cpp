@@ -14,7 +14,7 @@ extern HINSTANCE g_hInst;
 extern struct conf g_Conf;
 
 /* ‘O‰ñŽž“¯Šú“úŽž */
-static Timestamp s_tsPrevSync(0, 0);
+static struct tm s_LastSync;
 
 /* Window Message */
 #define WM_SYNC_INIT	WM_USER + 1		/* ‰Šú‰»           */
@@ -152,7 +152,7 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 				rtn = FALSE;
 			}else{
 				SYSLOG((LOG_DEBUG, "syncTime(): Time syncing success."));
-				s_tsPrevSync = ts_got;
+				memcpy(&s_LastSync, ts_got->getLocalTime(), sizeof(struct tm));
 				logSync(IDS_NTP_SYNC_OK);
 			}
 		}else{
@@ -509,15 +509,12 @@ syncClock(
 char *
 getLastSync()
 {
-	static char szPrevSync[18];
-	SYSTEMTIME st;
+	static char szPrevSync[32];
 
-	if (s_tsPrevSync.getSec() != 0) {
-		if (NULL != s_tsPrevSync.getSystemTime(&st)) {
-			wsprintf(szPrevSync, "%4d-%02d-%02d %2d:%02d:%02d",
-				st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-			return szPrevSync;
-		}
+	if (s_LastSync.tm_year != 0) {
+		//strftime(szPrevSync, sizeof(szPrevSync), "%x %X %z", &s_LastSync);
+		strftime(szPrevSync, sizeof(szPrevSync), "%Y-%m-%d %H:%M:%S", &s_LastSync);
+		return szPrevSync;
 	}
 
 	return NULL;

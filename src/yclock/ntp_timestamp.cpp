@@ -113,6 +113,24 @@ Timestamp::getSystemTime(SYSTEMTIME* st) {
 }
 
 /*
+ * struct tm Œ^‚Åæ“¾ (localtime)
+ */
+struct tm *
+Timestamp::getLocalTime() {
+	time_t t;
+
+	if (integer < 0x80000000) {
+		/* FSB == 0: 2036-02-07 06:28:16 UTC ` ƒm[ƒTƒ|[ƒg */
+		return NULL;
+	}else if (integer >= 0x83aa7e80) {
+		/* FSB == 1: 1900-01-01 00:00:00 UTC ` */
+		t = integer - 0x83aa7e80;
+		return localtime(&t);
+	}
+	return NULL;
+}
+
+/*
  * Timestamp‚ğİ’è
  */
 void
