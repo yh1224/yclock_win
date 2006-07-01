@@ -36,6 +36,7 @@
 #define IDC_CONFIG_VOL_LOW              1058
 #define IDC_CONFIG_VOL_MID              1059
 #define IDC_CONFIG_VOL_HIGH             1060
+#define IDC_CONFIG_VOL_TEST             1061
 #define IDS_NTP_INIT_NG                 12301
 #define IDS_NTP_SEND_NG                 12302
 #define IDS_NTP_WAITING                 12303
@@ -53,6 +54,7 @@
 #define IDS_NTP_RECVTIME                12315
 #define IDS_NTP_DELAY                   12316
 #define IDS_NTP_ERROR                   12317
+#define IDS_NTP_LASTSYNC                12318
 #define ID_MENU_EXIT                    40001
 #define ID_MENU_CONFIG                  40002
 #define ID_MENU_ABOUT                   40004
@@ -65,7 +67,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        145
 #define _APS_NEXT_COMMAND_VALUE         40021
-#define _APS_NEXT_CONTROL_VALUE         1061
+#define _APS_NEXT_CONTROL_VALUE         1062
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
