@@ -147,6 +147,10 @@ drawTime(HDC hdc, double p, LONG x, LONG y, int r, int d, int r2) {
 }
 #endif
 
+/* Timer ID */
+#define ID_TIMER_VOICE		1
+#define ID_TIMER_SYNC		2
+
 LRESULT CALLBACK
 WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -212,7 +216,8 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		trayIcon(hWnd, NIM_ADD);
 
 		/* タイマを生成 */
-		SetTimer(hWnd, 1, 60000 - (time.wSecond * 1000 + time.wMilliseconds), NULL);
+		SetTimer(hWnd, ID_TIMER_VOICE, 60000 - (time.wSecond * 1000 + time.wMilliseconds), NULL);
+		SetTimer(hWnd, ID_TIMER_SYNC, 1000, NULL);	// 1秒後に初回同期
 
 		break;
 
@@ -321,8 +326,8 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 
 	case WM_TIMER:
-		if (wParam == 1) {
-			//KillTimer(hWnd, 1);
+		if (wParam == ID_TIMER_VOICE) {
+			//KillTimer(hWnd, ID_TIMER_VOICE);
 			if (time.wSecond < 10) {
 #ifdef DISPWND
 				/* 時刻表示更新 */
@@ -338,36 +343,40 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						playCurrentTime(g_Conf.nVoiceVolume);
 					}
 				}
-
-				if (FALSE != g_Conf.bSync) {
-					/* インターネット接続の検出 */
-					DWORD dwFlags;
-					if (FALSE == InternetGetConnectedState(&dwFlags, 0)) {
-						nTimer = -1;
-						SYSLOG((LOG_DEBUG, "InternetGetConnectedState() failed."));
-					}else{
-						SYSLOG((LOG_DEBUG, "InternetGetConnectedState(): %d", dwFlags));
-						/* 時刻同期 */
-						nTimer++;
-						if (nTimer == 0 || nTimer >= (int)g_Conf.nSyncInterval) {
-							memset(&syncParam, 0, sizeof(syncParam));
-							syncParam.bSync = TRUE;
-							syncParam.szServer = g_Conf.szServer;
-							syncParam.nMaxDelay = g_Conf.nMaxDelay;
-							syncParam.nTolerance = g_Conf.nTolerance;
-							syncParam.nTimeShift = g_Conf.nTimeShift;
-							syncClock(hWnd, &syncParam, FALSE);
-							nTimer = 0;
-						}
-						SYSLOG((LOG_DEBUG, "Timer counts: %d", nTimer));
-					}
-
-				}
 			}
 
 			/* タイマーの再設定 */
 			GetLocalTime(&time);	/* 再取得 */
-			SetTimer(hWnd, 1, 60000 - (time.wSecond * 1000 + time.wMilliseconds), NULL);
+			SetTimer(hWnd, ID_TIMER_VOICE, 60000 - (time.wSecond * 1000 + time.wMilliseconds), NULL);
+
+		}else if (wParam == ID_TIMER_SYNC) {
+			//KillTimer(hWnd, ID_TIMER_SYNC);
+			if (FALSE != g_Conf.bSync) {
+				/* インターネット接続の検出 */
+				DWORD dwFlags;
+				if (FALSE == InternetGetConnectedState(&dwFlags, 0)) {
+					nTimer = -1;
+					SYSLOG((LOG_DEBUG, "InternetGetConnectedState() failed."));
+				}else{
+					SYSLOG((LOG_DEBUG, "InternetGetConnectedState(): %d", dwFlags));
+					/* 時刻同期 */
+					nTimer++;
+					if (nTimer == 0 || nTimer >= (int)g_Conf.nSyncInterval) {
+						memset(&syncParam, 0, sizeof(syncParam));
+						syncParam.bSync = TRUE;
+						syncParam.szServer = g_Conf.szServer;
+						syncParam.nMaxDelay = g_Conf.nMaxDelay;
+						syncParam.nTolerance = g_Conf.nTolerance;
+						syncParam.nTimeShift = g_Conf.nTimeShift;
+						syncClock(hWnd, &syncParam, FALSE);
+						nTimer = 0;
+					}
+					SYSLOG((LOG_DEBUG, "Timer counts: %d", nTimer));
+				}
+			}
+
+			/* タイマーの再設定 */
+			SetTimer(hWnd, ID_TIMER_SYNC, 60000, NULL);
 		}
 		break;
 
@@ -423,7 +432,8 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(hrgnWnd);
 		}
 #endif
-		KillTimer(hWnd, 1);
+		KillTimer(hWnd, ID_TIMER_VOICE);
+		KillTimer(hWnd, ID_TIMER_SYNC);
 		trayIcon(hWnd, NIM_DELETE);
 		PostQuitMessage(0);
 		break;
