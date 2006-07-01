@@ -32,8 +32,8 @@ static const int nDefaultTolerance = 200;
 static const int nMinTolerance = 0;
 static const int nMaxTolerance = 1000;
 static const int nDefaultTimeShift = 0;
-static const int nMaxTimeShift = 3600;
-static const int nMinTimeShift = -3600;
+static const int nMaxTimeShift = 300;
+static const int nMinTimeShift = -300;
 #ifdef DISPWND
 static const BOOL bDefaultShow = TRUE;
 #endif
@@ -242,6 +242,15 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
 				break;
 			}
+			nTimeShift = GetDlgItemInt(hwndDlg, IDC_NTP_SHIFT_SEC, &bTrans, TRUE);
+			if (FALSE == bTrans) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_INVALIDDIGIT, MB_OK | MB_ICONSTOP);
+				break;
+			}
+			if (nTimeShift < nMinTimeShift || nTimeShift > nMaxTimeShift) {
+				showMessage(g_hInst, hwndDlg, IDS_CONF_OUTOFRANGE, MB_OK | MB_ICONSTOP);
+				break;
+			}
 
 			/* 時刻同期テスト実行 */
 			memset(&syncParam, 0, sizeof(syncParam));
@@ -249,7 +258,7 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			syncParam.szServer = szServer;
 			syncParam.nMaxDelay = nMaxDelay;
 			syncParam.nTolerance = nTolerance;
-			syncParam.nTimeShift = 0;
+			syncParam.nTimeShift = nTimeShift;
 			syncClock(hwndDlg, &syncParam, TRUE);
 			break;
 

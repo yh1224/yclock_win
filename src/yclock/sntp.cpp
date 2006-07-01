@@ -123,7 +123,7 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 
 	/* Œë· */
 	ts_error = new Timestamp();
-	ts_error->sub(ts_got);
+	ts_error->sub(ts_set);
 	ts_error->abs();
 	SYSLOG((LOG_DEBUG, "Clock difference = %lu.%06lu", ts_error->getSec(), ts_error->getUSec()));
 	logSync(IDS_NTP_ERROR, ts_error->getSec(), ts_error->getUSec() / 1000);
