@@ -272,6 +272,11 @@ playCurrentTime(int vol) {
 	return playVoice(voice, 2, vol);
 }
 
+BOOL
+playVoiceTest(int vol) {
+	return playVoice("H00\0M00", 2, vol);
+}
+
 /* ‰¹ºƒtƒ@ƒCƒ‹‚ª‚ ‚é‚©‚Ç‚¤‚© */
 BOOL
 existVoice() {

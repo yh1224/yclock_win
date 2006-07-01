@@ -461,6 +461,18 @@ ConfigDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			DialogBox(g_hInst, MAKEINTRESOURCE(IDD_SNTP), hWnd, NtpDlgProc);
 			break;
 
+		case IDC_CONFIG_VOL_LOW:
+			playVoiceTest(nVoiceVolume_Low);
+			break;
+
+		case IDC_CONFIG_VOL_MID:
+			playVoiceTest(nVoiceVolume_Mid);
+			break;
+
+		case IDC_CONFIG_VOL_HIGH:
+			playVoiceTest(nVoiceVolume_High);
+			break;
+
 		case IDOK:
 			/* éûçèìØä˙ê›íË */
 			if (BST_CHECKED == IsDlgButtonChecked(hWnd, IDC_CONFIG_SYNC)) {
