@@ -106,7 +106,7 @@ BEGIN
                     97,23,10
     CONTROL         "‘å",IDC_CONFIG_VOL_HIGH,"Button",BS_AUTORADIOBUTTON,99,
                     97,23,10
-    PUSHBUTTON      "Ã½Ä(&T)",IDC_CONFIG_VOL_TEST,122,94,35,14
+    PUSHBUTTON      "Ã½Ä(&T)",IDC_CONFIG_VOL_TEST,122,95,35,14
     DEFPUSHBUTTON   "OK",IDOK,170,7,50,14
     PUSHBUTTON      "·¬Ý¾Ù",IDCANCEL,170,24,50,14
     CONTROL         "Ž©“®‹N“®(&S)",IDC_CONFIG_STARTUP,"Button",
