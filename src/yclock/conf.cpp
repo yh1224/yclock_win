@@ -358,10 +358,12 @@ enableConfigDlg(
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_LOW), FALSE);
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_MID), FALSE);
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_HIGH), FALSE);
+		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_TEST), FALSE);
 	}else{
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_LOW), TRUE);
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_MID), TRUE);
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_HIGH), TRUE);
+		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_TEST), TRUE);
 	}
 
 	return;
