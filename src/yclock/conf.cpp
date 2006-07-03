@@ -353,7 +353,8 @@ enableConfigDlg(
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_NTP), FALSE);		/* “¯ŠúÚ×İ’è–³Œø */
 	}
 
-	if (BST_CHECKED == IsDlgButtonChecked(hWnd, IDC_CONFIG_VOICE0)) {
+	if (BST_CHECKED == IsDlgButtonChecked(hWnd, IDC_CONFIG_VOICE0) ||
+	    FALSE == IsWindowEnabled(GetDlgItem(hWnd,IDC_CONFIG_VOICE0))) {
 		/* “Ç‚İã‚°‚È‚µ‚Ìê‡ */
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_LOW), FALSE);
 		EnableWindow(GetDlgItem(hWnd, IDC_CONFIG_VOL_MID), FALSE);
