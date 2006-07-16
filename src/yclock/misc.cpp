@@ -79,25 +79,34 @@ isPlatformWin32NT()
 BOOL
 getClockPrivilege()
 {
-	BOOL rtn = TRUE;
+	BOOL result;
 	HANDLE hToken;
 	TOKEN_PRIVILEGES pr;
 
+	result = FALSE;
 	if (FALSE != isPlatformWin32NT()) {
-		OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken);
-		LookupPrivilegeValue(NULL, SE_SYSTEMTIME_NAME, &pr.Privileges[0].Luid);
-		pr.PrivilegeCount = 1;
-		pr.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-		if (!AdjustTokenPrivileges(hToken, FALSE, &pr, NULL, NULL, NULL)) {
-			rtn = FALSE;
+		if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken) != 0) {
+			if (LookupPrivilegeValue(NULL, SE_SYSTEMTIME_NAME, &pr.Privileges[0].Luid) != 0) {
+				pr.PrivilegeCount = 1;
+				pr.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+				if (AdjustTokenPrivileges(hToken, FALSE, &pr, 0, NULL, NULL) != FALSE &&
+				    GetLastError() == ERROR_SUCCESS) {
+					SYSLOG((LOG_INFO, "AdjustTokenPrivileges() suceeded."));
+					result = TRUE;
+				}
+			}
+			CloseHandle(hToken);
 		}
+	}else{
+		/* Win9xånÇÕèÌÇ… TRUE */
+		result = TRUE;
 	}
 #ifdef _DEBUG
-	if (FALSE == rtn) {
+	if (result == FALSE) {
 		SYSLOG((LOG_INFO, "No clock privilege."));
 	}
 #endif
-	return rtn;
+	return result;
 }
 
 

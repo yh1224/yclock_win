@@ -3,6 +3,7 @@
 #include <wininet.h>
 #include <time.h>
 #include "WSAASyncGetAddrInfo.h"
+#include "misc.h"
 #include "conf.h"
 #include "debug.h"
 #include "resource.h"
@@ -146,14 +147,20 @@ syncTime(struct pkt *pkt, struct sync_param *syncParam)
 			st_set.wHour, st_set.wMinute, st_set.wSecond, st_set.wMilliseconds);
 		if (syncParam->bSync != FALSE) {
 			/* ŽžÝ’è */
-			if (FALSE == SetSystemTime(&st_set)) {
-				SYSLOG((LOG_ERR, "syncTime(): SetSystemTime() failed."));
+			if (FALSE == getClockPrivilege()) {
+				SYSLOG((LOG_ERR, "syncTime(): No clock privilege."));
 				logSync(IDS_NTP_SYNC_NG);
 				rtn = FALSE;
 			}else{
-				SYSLOG((LOG_DEBUG, "syncTime(): Time syncing success."));
-				memcpy(&s_LastSync, ts_got->getLocalTime(), sizeof(struct tm));
-				logSync(IDS_NTP_SYNC_OK);
+				if (FALSE == SetSystemTime(&st_set)) {
+					SYSLOG((LOG_ERR, "syncTime(): SetSystemTime() failed."));
+					logSync(IDS_NTP_SYNC_NG);
+					rtn = FALSE;
+				}else{
+					SYSLOG((LOG_DEBUG, "syncTime(): Time syncing success."));
+					memcpy(&s_LastSync, ts_got->getLocalTime(), sizeof(struct tm));
+					logSync(IDS_NTP_SYNC_OK);
+				}
 			}
 		}else{
 			logSync(IDS_NTP_CHECK_OK);
