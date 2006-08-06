@@ -1,5 +1,5 @@
 #define IDENT_APLTITLE			"—MŽqŽžŒv[‚ä‚¸‚±‚Æ‚¯‚¢]"
-#define IDENT_APLVERSION		"1.3.4 (dev)"
+#define IDENT_APLVERSION		"1.4"
 #define IDENT_MUTEXOBJECTNAME		"YUZUKOCLOCK"
 #define IDENT_REGISTRYKEY		"Software\\orange\\yclock"
 #define IDENT_SUPPORTURL		"http://www.assemble.net/orange/"
