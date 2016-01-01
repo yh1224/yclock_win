@@ -441,10 +441,10 @@ CreateShortcut(
 			psl->SetShowCmd(iShowCmd);			// ウィンドウスタイル
 
 			// 文字列がANSI文字で構成されるようにする
-			MultiByteToWideChar(CP_ACP, 0, pszLink, -1, wsz, MAX_PATH);
+			MultiByteToWideChar(CP_ACP, 0, pszLink, -1, (LPWSTR)wsz, MAX_PATH);
 
 			// ショートカットを保存する
-			hres = ppf->Save(wsz, TRUE);
+			hres = ppf->Save((LPCOLESTR)wsz, TRUE);
 
 			// IPersistFile へのポインタを開放する
 			ppf->Release();

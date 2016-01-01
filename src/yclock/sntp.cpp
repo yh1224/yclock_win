@@ -11,6 +11,9 @@
 #include "ntp_timestamp.h"
 #include "sntp.h"
 
+// link with ws2_32.lib
+#pragma comment(lib, "Ws2_32.lib")
+
 extern HINSTANCE g_hInst;
 extern struct conf g_Conf;
 
@@ -311,7 +314,7 @@ SyncDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static char szHostName[INTERNET_MAX_HOST_NAME_LENGTH];
 	static ADDRINFO aiHints;
 	static ADDRINFO *pHost;
-	static cntRetry;	/* リトライカウント */
+	static int cntRetry;	/* リトライカウント */
 	static sync_param args;
 
 	WSADATA	wsaData;

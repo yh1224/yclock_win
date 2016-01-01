@@ -6,6 +6,6 @@
 void
 main(int argc, char *argv[])
 {
-	playVoice(argv[1], 1);
+	playVoice(argv[1], 1, 100);
 	exit(EXIT_SUCCESS);
 }
