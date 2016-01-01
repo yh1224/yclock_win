@@ -375,10 +375,10 @@ getFullPath(const char *filename, char *out, unsigned int size)
 	if (NULL != (p = strrchr(path, '\\'))) {
 		*p = '\0';
 	}
-	strcat(path, "\\");
-	strcat(path, filename);
+	strcat_s(path, sizeof(path), "\\");
+	strcat_s(path, sizeof(path), filename);
 	if (strlen(path) < size) {
-		strcpy(out, path);
+		strcpy_s(out, size, path);
 		return TRUE;
 	}
 	return FALSE;
@@ -477,7 +477,7 @@ showMessage(
 
 	va_start(args, nType);
 	LoadString(hInstance, uID, fmt, sizeof(fmt));
-	vsprintf(msg, fmt, args);
+	vsprintf_s(msg, sizeof(msg), fmt, args);
 	MessageBox(hWnd, msg, NULL, nType);
 	va_end(args);
 

@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
 void *
 mymalloc(size_t siz) {
 	void *p;
@@ -36,10 +34,10 @@ getFullPath(char *filename, char *out, unsigned int size) {
 	if (NULL != (p = strrchr(path, '\\'))) {
 		*p = '\0';
 	}
-	strcat(path, "\\");
-	strcat(path, filename);
+	strcat_s(path, sizeof(path), "\\");
+	strcat_s(path, sizeof(path), filename);
 	if (strlen(path) < size) {
-		strcpy(out, path);
+		strcpy_s(out, size, path);
 		return TRUE;
 	}
 	return FALSE;
@@ -79,7 +77,7 @@ dat2wav(char *file, char *dir)
 
 	getFullPath(file, filename, sizeof(filename));
 
-	if (NULL == (fpin = fopen(filename, "rb"))) {
+	if (0 != fopen_s(&fpin, filename, "rb")) {
 		fprintf(stderr, "Failed to open: %s\n", file);
 		goto fail;
 	}
@@ -98,9 +96,9 @@ dat2wav(char *file, char *dir)
 		char file[32];
 		char path[MAX_PATH + 1];
 
-		sprintf(file, "%s\\%s.wav", dir, tbl->name);
+		sprintf_s(file, sizeof(file), "%s\\%s.wav", dir, tbl->name);
 		getFullPath(file, path, sizeof(path));
-		if (NULL == (fpout = fopen(path, "w"))) {
+		if (0 != fopen_s(&fpout, path, "w")) {
 			fprintf(stderr, "Failed to create file: %s\n", path);
 			goto fail;
 		}
@@ -194,7 +192,7 @@ wav2dat(char *file, char *dir)
 	int siz;
 
 	getFullPath(file, path, sizeof(path));
-	if (NULL == (fpout = fopen(path, "wb"))) {
+	if (0 != fopen_s(&fpout, path, "wb")) {
 		fprintf(stderr, "Failed to create file: %s\n", path);
 		goto fail2;
 	}
@@ -220,7 +218,7 @@ wav2dat(char *file, char *dir)
 		tbl = (struct tbl *)((char *)pHdr + 4 + num * sizeof(struct tbl));
 
 		/* ヘッダ: ファイル名 (3文字固定) */
-		strncpy(tbl->name, ffData.cFileName, 3);
+		strncpy_s(tbl->name, 4, ffData.cFileName, 3);
 		memset(&tbl->name[3], 0, 9);
 		strUpper(tbl->name);
 
@@ -232,7 +230,7 @@ wav2dat(char *file, char *dir)
 		}
 
 		/* データ */
-		if (NULL == (fpin = fopen(ffData.cFileName, "rb"))) {
+		if (0 != fopen_s(&fpin, ffData.cFileName, "rb")) {
 			fprintf(stderr, "Failed to open file: %s\n", path);
 			goto fail2;
 		}

@@ -175,7 +175,7 @@ playVoice(char *voice, int count, int vol) {
 
 	getFullPath(pszVoiceFilename, filepath, sizeof(filepath));
 
-	if (NULL == (fp = fopen(filepath, "rb"))) {
+	if (0 != fopen_s(&fp, filepath, "rb")) {
 		SYSLOG((LOG_ERR, "Failed to open voice file."));
 		return FALSE;
 	}

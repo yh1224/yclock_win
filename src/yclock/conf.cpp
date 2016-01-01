@@ -44,7 +44,7 @@ extern HINSTANCE g_hInst;
 void
 conf_init() {
 	memset(&g_Conf, 0, sizeof(struct conf));
-	strcpy(g_Conf.szServer, pszDefaultServer);
+	strcpy_s(g_Conf.szServer, sizeof(g_Conf.szServer), pszDefaultServer);
 	g_Conf.bSync =bDefaultSync;
 	g_Conf.nSyncInterval = nDefaultSyncInterval;
 	g_Conf.nVoiceInterval = nDefaultVoiceInterval;
@@ -312,7 +312,7 @@ NtpDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				nTimeShift = 0;
 			}
 
-			strcpy(g_Conf.szServer, szServer);
+			strcpy_s(g_Conf.szServer, sizeof(g_Conf.szServer), szServer);
 			g_Conf.nMaxDelay = nMaxDelay;
 			g_Conf.nTolerance = nTolerance;
 			g_Conf.nTimeShift = nTimeShift;
@@ -384,7 +384,8 @@ getShortcutPath(
 	RegQueryValueEx(hkey, "Startup", 0, &dwType, (BYTE *)pszShortcutPath, &cb);
 	RegCloseKey(hkey);
 
-	sprintf(pszShortcutPath + strlen(pszShortcutPath), "\\%s.lnk", IDENT_APLTITLE);
+	sprintf_s(pszShortcutPath + strlen(pszShortcutPath), sizeof(pszShortcutPath) - strlen(pszShortcutPath),
+		"\\%s.lnk", IDENT_APLTITLE);
 	return;
 }
 
@@ -447,7 +448,7 @@ ConfigDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		/* 自動起動設定 */
 		getShortcutPath(szShortcutPath, sizeof(szShortcutPath));
-		if (NULL != (fp = fopen(szShortcutPath, "r"))) {
+		if (0 == (fopen_s(&fp, szShortcutPath, "r"))) {
 			/* ショートカットがあればOn */
 			CheckDlgButton(hWnd, IDC_CONFIG_STARTUP, BST_CHECKED);
 			fclose(fp);

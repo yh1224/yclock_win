@@ -14,17 +14,19 @@ syslog(int pri, ...)	/* priÇÕç°ÇÃÇ∆Ç±ÇÎñ≥éã */
 	va_list args;
 	char *fmt;
 	char path[MAX_PATH + 1];
+	char timstr[26];
 	char *p;
 	time_t tim;
 
 	if (fp == NULL) {	/* èââÒ */
 		getFullPath(pszLogFile, path, sizeof(path));
-		fp = fopen(path, "a");
+		fopen_s(&fp, path, "a");
 	}
 
 	if (NULL != fp) {
 		time(&tim);
-		p = ctime(&tim);
+		ctime_s(timstr, sizeof(timstr), &tim);
+		p = timstr;
 		*(p + strlen(p) - 1) = '\0';
 		fprintf(fp, "[%s] ", p);
 

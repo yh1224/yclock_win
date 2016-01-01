@@ -365,7 +365,7 @@ SyncDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		memset(&aiHints, 0, sizeof(ADDRINFO));
 		aiHints.ai_family = PF_UNSPEC;		/* プロトコルファミリ: 未指定(IPv4/v6) */
 		aiHints.ai_socktype = SOCK_DGRAM;	/* ソケットタイプ: UDP */
-		strcpy(szHostName, args.szServer);
+		strcpy_s(szHostName, sizeof(szHostName), args.szServer);
 		if (0 == (s_hGetHost = WSAAsyncGetAddrInfo(hwndDlg, WM_SYNC_GETHOST, szHostName, "123", &aiHints, &pHost))) {
 			SYSLOG((LOG_ERR, "SyncDlgProc(): WSAsyncGetAddrInfo() failed."));
 			logSync(IDS_NTP_INIT_NG);

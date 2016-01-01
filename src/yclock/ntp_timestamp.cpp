@@ -90,7 +90,7 @@ Timestamp::getPacketData(char *p) {
 SYSTEMTIME*
 Timestamp::getSystemTime(SYSTEMTIME* st) {
 	time_t t;
-	struct tm *tm;
+	struct tm tm;
 
 	if (integer < 0x80000000) {
 		/* FSB == 0: 2036-02-07 06:28:16 UTC Å` ÉmÅ[ÉTÉ|Å[Ég */
@@ -98,13 +98,13 @@ Timestamp::getSystemTime(SYSTEMTIME* st) {
 	}else if (integer >= 0x83aa7e80) {
 		/* FSB == 1: 1900-01-01 00:00:00 UTC Å` */
 		t = integer - 0x83aa7e80;
-		if (NULL != (tm = gmtime(&t))) {
-			st->wYear = tm->tm_year + 1900;
-			st->wMonth = tm->tm_mon + 1;
-			st->wDay = tm->tm_mday;
-			st->wHour = tm->tm_hour;
-			st->wMinute = tm->tm_min;
-			st->wSecond = tm->tm_sec;
+		if (0 == gmtime_s(&tm, &t)) {
+			st->wYear = tm.tm_year + 1900;
+			st->wMonth = tm.tm_mon + 1;
+			st->wDay = tm.tm_mday;
+			st->wHour = tm.tm_hour;
+			st->wMinute = tm.tm_min;
+			st->wSecond = tm.tm_sec;
 			st->wMilliseconds = (WORD)((double)(fraction) / 4294967296. * 1000.);
 			return st;
 		}
@@ -117,6 +117,7 @@ Timestamp::getSystemTime(SYSTEMTIME* st) {
  */
 struct tm *
 Timestamp::getLocalTime() {
+	static struct tm tm;
 	time_t t;
 
 	if (integer < 0x80000000) {
@@ -125,7 +126,8 @@ Timestamp::getLocalTime() {
 	}else if (integer >= 0x83aa7e80) {
 		/* FSB == 1: 1900-01-01 00:00:00 UTC Å` */
 		t = integer - 0x83aa7e80;
-		return localtime(&t);
+		localtime_s(&tm, &t);
+		return &tm;
 	}
 	return NULL;
 }
