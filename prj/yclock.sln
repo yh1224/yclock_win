@@ -1,39 +1,33 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "play", "play\play.vcproj", "{F44E9A13-0AB8-4029-B812-342A775EBC91}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "taeclock", "taeclock\taeclock.vcproj", "{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wavconv", "wavconv\wavconv.vcproj", "{E7411FDD-1887-4770-8071-AC69FF5BE2A4}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yclock", "yclock\yclock.vcproj", "{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
-	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{F44E9A13-0AB8-4029-B812-342A775EBC91}.Debug.ActiveCfg = Debug|Win32
-		{F44E9A13-0AB8-4029-B812-342A775EBC91}.Release.ActiveCfg = Release|Win32
-		{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}.Debug.ActiveCfg = Debug|Win32
-		{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}.Release.ActiveCfg = Release|Win32
-		{E7411FDD-1887-4770-8071-AC69FF5BE2A4}.Debug.ActiveCfg = Debug|Win32
-		{E7411FDD-1887-4770-8071-AC69FF5BE2A4}.Release.ActiveCfg = Release|Win32
-		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Debug.ActiveCfg = Debug|Win32
-		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Debug.Build.0 = Debug|Win32
-		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Release.ActiveCfg = Release|Win32
-		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Release.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
-	EndGlobalSection
-EndGlobal
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "play", "play\play.vcxproj", "{F44E9A13-0AB8-4029-B812-342A775EBC91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "taeclock", "taeclock\taeclock.vcxproj", "{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wavconv", "wavconv\wavconv.vcxproj", "{E7411FDD-1887-4770-8071-AC69FF5BE2A4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yclock", "yclock\yclock.vcxproj", "{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F44E9A13-0AB8-4029-B812-342A775EBC91}.Debug|x86.ActiveCfg = Debug|Win32
+		{F44E9A13-0AB8-4029-B812-342A775EBC91}.Release|x86.ActiveCfg = Release|Win32
+		{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}.Debug|x86.ActiveCfg = Debug|Win32
+		{F3F0994F-6B61-42EB-9840-EBB8CF2985C7}.Release|x86.ActiveCfg = Release|Win32
+		{E7411FDD-1887-4770-8071-AC69FF5BE2A4}.Debug|x86.ActiveCfg = Debug|Win32
+		{E7411FDD-1887-4770-8071-AC69FF5BE2A4}.Release|x86.ActiveCfg = Release|Win32
+		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Debug|x86.ActiveCfg = Debug|Win32
+		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Debug|x86.Build.0 = Debug|Win32
+		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Release|x86.ActiveCfg = Release|Win32
+		{38B01B79-81F1-4031-8F8C-B43F71BA0BDE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
