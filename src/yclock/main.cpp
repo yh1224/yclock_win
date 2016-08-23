@@ -303,7 +303,7 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDBLCLK:
 	case WM_NCLBUTTONDBLCLK:
 		{
-		HCURSOR hCursor = SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(IDC_WAIT)));
+		HCURSOR hCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 		playCurrentTime(g_Conf.nVoiceVolume);
 		SetCursor(hCursor);
 		}
@@ -410,7 +410,7 @@ WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 #endif
 #else /* åªç›éûçèì«Ç›è„Ç∞ */
-			hCursor = SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(IDC_WAIT)));
+			hCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 			playCurrentTime(g_Conf.nVoiceVolume);
 			SetCursor(hCursor);
 #endif
